@@ -2,8 +2,13 @@ name: Build Audly
 
 on:
   push:
+    branches: [main]
+    tags: ["v*"]
   release:
     types: [published]
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -47,16 +52,37 @@ jobs:
         if: runner.os == 'Windows'
         run: pyinstaller --windowed --onefile --icon=matcha.ico audly.py
 
+      - name: Package macOS release
+        if: runner.os == 'macOS'
+        run: cd dist && zip -r ../Audly-macOS.zip audly.app
+
+      - name: Package Windows release
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path dist/audly.exe -DestinationPath Audly-Windows.zip -Force
+
       - name: Upload macOS app artifact
         if: runner.os == 'macOS'
         uses: actions/upload-artifact@v4
         with:
           name: Audly-macOS
-          path: dist/audly.app
+          path: Audly-macOS.zip
 
       - name: Upload Windows executable artifact
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
         with:
           name: Audly-Windows
-          path: dist/audly.exe
+          path: Audly-Windows.zip
+
+      - name: Attach macOS zip to GitHub Release
+        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Audly-macOS.zip
+
+      - name: Attach Windows zip to GitHub Release
+        if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Audly-Windows.zip

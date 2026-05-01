@@ -6,6 +6,19 @@ Audly wraps common `yt-dlp` workflows in a clean PySide6 interface for users who
 
 ![Audly desktop app screenshot](assets/audly-screenshot.png)
 
+## Download
+
+Download the latest public build from the Audly Releases page:
+
+[Download Audly from GitHub Releases](https://github.com/taylorph/audly/releases/latest)
+
+Choose the file for your operating system:
+
+- macOS: download `Audly-macOS.zip`, unzip it, then open `audly.app`.
+- Windows: download `Audly-Windows.zip`, unzip it, then run `audly.exe`.
+
+On macOS, Audly is currently unsigned. If macOS blocks the app on first launch, right click the app and choose Open.
+
 ## Features
 
 - MP3 / MP4 downloads
@@ -85,18 +98,32 @@ pyinstaller --windowed --onefile --icon=matcha.ico audly.py
 
 ## Release Instructions
 
-Create release archives from the PyInstaller output:
+Releases are published through GitHub Releases:
+
+[https://github.com/taylorph/audly/releases](https://github.com/taylorph/audly/releases)
+
+To publish a new release, create and push a version tag:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+GitHub Actions will build both platforms and attach these files to the release:
+
+- `Audly-macOS.zip`
+- `Audly-Windows.zip`
+
+For manual packaging, create release archives from the PyInstaller output:
 
 ```bash
 zip -r Audly-macOS.zip dist/audly.app
 zip Audly-Windows.zip dist/audly.exe
 ```
 
-On macOS, Audly is currently unsigned. If macOS blocks the app on first launch, right click the app and choose Open.
-
 ## Automated Builds
 
-GitHub Actions builds Audly on both `macos-latest` and `windows-latest` for every push and published release. The workflow uploads the macOS `.app` bundle and Windows `.exe` as downloadable artifacts, so a Windows machine is not required to produce the Windows release build.
+GitHub Actions builds Audly on both `macos-latest` and `windows-latest` for every push and version tag. Normal pushes upload build artifacts for verification. Version tags create release-ready zip files and attach them to GitHub Releases, so a Windows machine is not required to produce the Windows release build.
 
 ## License
 
