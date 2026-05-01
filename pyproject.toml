@@ -1,0 +1,11 @@
+[project]
+name = "audly"
+version = "0.1.0"
+description = "A macOS desktop GUI for yt-dlp and FFmpeg media downloads and clipping."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pyinstaller>=6.20.0",
+    "pyside6>=6.11.0",
+    "yt-dlp>=2026.3.17",
+]

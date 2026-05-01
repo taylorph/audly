@@ -1,0 +1,62 @@
+name: Build Audly
+
+on:
+  push:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip PySide6 yt-dlp pyinstaller pillow
+
+      - name: Generate Windows icon
+        if: runner.os == 'Windows'
+        shell: python
+        run: |
+          from PIL import Image
+
+          image = Image.open("matchaicon.png")
+          image.save(
+              "matcha.ico",
+              sizes=[(16, 16), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)],
+          )
+
+      - name: Build macOS app
+        if: runner.os == 'macOS'
+        run: pyinstaller --windowed --icon=matcha.icns audly.py
+
+      - name: Build Windows executable
+        if: runner.os == 'Windows'
+        run: pyinstaller --windowed --onefile --icon=matcha.ico audly.py
+
+      - name: Upload macOS app artifact
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Audly-macOS
+          path: dist/audly.app
+
+      - name: Upload Windows executable artifact
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Audly-Windows
+          path: dist/audly.exe
