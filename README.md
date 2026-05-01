@@ -15,17 +15,23 @@ Download the latest public build from the Audly Releases page:
 Choose the file for your operating system:
 
 - macOS: download `Audly-macOS.zip`, unzip it, then open `audly.app`.
-- Windows: download `Audly-Windows.zip`, unzip it, then run `audly.exe`.
+- Windows: download `Audly-Windows.zip`, unzip it, then run `Audly.exe`.
 
 On macOS, Audly is currently unsigned. If macOS blocks the app on first launch, right click the app and choose Open.
 
 ## Features
 
 - MP3 / MP4 downloads
+- Preview metadata before downloading
+- Custom output names with automatic `name (1)` copies
+- Remembered output folder through application settings
 - Best / Standard quality options
 - Clip timestamps for partial downloads
 - Output folder selection
-- Real-time progress UI
+- Real-time progress and debug log UI
+- Dedicated success/failure result panel
+- Product-safe activity log without raw dependency paths
+- Bundled FFmpeg fallback through `imageio-ffmpeg`
 
 ## Tech Stack
 
@@ -44,15 +50,26 @@ On macOS, Audly is currently unsigned. If macOS blocks the app on first launch, 
 
 ## How It Works
 
-Audly converts form input into a structured `yt-dlp` command. The GUI collects the media URL, output folder, target format, quality level, and optional start/end timestamps, then builds the matching CLI arguments programmatically.
+Audly converts form input into structured `yt-dlp` options. The GUI collects the media URL, output folder, target format, quality level, and optional start/end timestamps, then passes those options to the yt-dlp Python API.
 
-Downloads run through Python's `subprocess.Popen`, which starts `yt-dlp` as a child process and streams combined stdout/stderr back into the app. This keeps the implementation close to the official command-line behavior while giving users a desktop interface.
+Preview and download work run in background `QThread` workers. Preview fetches metadata before downloading so users can confirm the title, uploader, duration, format, and thumbnail URL. Downloads use yt-dlp progress hooks to update the progress bar, status text, and in-app debug panel.
 
-Long-running downloads execute inside a `QThread` worker. The worker keeps the Qt event loop responsive while emitting signals for progress, status changes, completion, and failure states.
+The result is a desktop wrapper around yt-dlp where users interact with buttons and fields while Audly shows live progress, errors, and the final saved file path inside the app.
 
-Audly parses `yt-dlp` output lines for progress percentages such as `[download] 42.0%`. Those values are converted into progress-bar updates, while other output markers like extraction, merging, and destination messages are translated into readable UI status text.
+## Project Structure
 
-The result is a CLI abstraction layer: users interact with buttons and fields, while Audly safely generates and runs the appropriate `yt-dlp` command in the background.
+- `audly.py` starts the Qt app and opens the main window.
+- `models.py` defines the typed request and metadata objects shared across the app.
+- `workers.py` owns background `QThread` work for preview and download.
+- `ui/` contains the main window, preview panel, progress panel, debug panel, and stylesheet.
+- `ui/result_panel.py` shows unmistakable completion and failure states.
+- `services/metadata_service.py` fetches preview metadata through yt-dlp.
+- `services/download_service.py` owns download orchestration, FFmpeg preflight checks, and progress hooks.
+- `services/file_naming_service.py` owns safe filenames and `name (1)` copy behavior.
+- `services/ffmpeg_service.py` resolves bundled, system, or `imageio-ffmpeg` FFmpeg.
+- `services/settings_service.py` persists the selected output folder with Qt settings.
+- `services/ytdlp_options.py` keeps extractor options centralized.
+- `services/ytdlp_logger.py` adapts yt-dlp logs into Audly's debug panel.
 
 ## Platform Support
 
@@ -61,16 +78,16 @@ The result is a CLI abstraction layer: users interact with buttons and fields, w
 
 ## Requirements
 
-- Python 3.12+
-- uv
-- FFmpeg installed and available on PATH
+- Python 3.10+
+- Python dependencies from `requirements.txt`
 
-`yt-dlp`, PySide6, and PyInstaller are installed from the Python project dependencies.
+Audly includes an `imageio-ffmpeg` fallback for packaged builds, and can also use a bundled `ffmpeg.exe` or system FFmpeg when available.
 
 ## Installation (Development)
 
 ```bash
-uv run audly.py
+python -m pip install -r requirements.txt
+python audly.py
 ```
 
 ## Build Instructions
@@ -90,10 +107,10 @@ python -m pip install pillow
 python -c "from PIL import Image; img = Image.open('matchaicon.png'); img.save('matcha.ico', sizes=[(16,16),(32,32),(48,48),(64,64),(128,128),(256,256)])"
 ```
 
-Then build the executable:
+Then build the folder-based Windows app:
 
 ```bash
-pyinstaller --windowed --onefile --icon=matcha.ico audly.py
+pyinstaller --clean --noconfirm --windowed --onedir --name Audly --icon=matcha.ico --collect-all yt_dlp --collect-all certifi --collect-all imageio_ffmpeg audly.py
 ```
 
 ## Release Instructions
@@ -118,7 +135,7 @@ For manual packaging, create release archives from the PyInstaller output:
 
 ```bash
 zip -r Audly-macOS.zip dist/audly.app
-zip Audly-Windows.zip dist/audly.exe
+Compress-Archive -Path dist\Audly\* -DestinationPath Audly-Windows.zip -Force
 ```
 
 ## Automated Builds
