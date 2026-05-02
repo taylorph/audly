@@ -3,9 +3,11 @@ name = "audly"
 version = "0.1.0"
 description = "A macOS desktop GUI for yt-dlp and FFmpeg media downloads and clipping."
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 dependencies = [
     "pyinstaller>=6.20.0",
     "pyside6>=6.11.0",
+    "certifi>=2024.6.2",
+    "imageio-ffmpeg>=0.6.0",
     "yt-dlp>=2026.3.17",
 ]

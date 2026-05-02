@@ -28,7 +28,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: python -m pip install --upgrade pip PySide6 yt-dlp pyinstaller pillow
+        run: python -m pip install --upgrade pip -r requirements.txt pyinstaller pillow
 
       - name: Generate Windows icon
         if: runner.os == 'Windows'
@@ -44,20 +44,42 @@ jobs:
 
       - name: Build macOS app
         if: runner.os == 'macOS'
-        run: pyinstaller --windowed --icon=matcha.icns audly.py
+        run: >
+          pyinstaller
+          --clean
+          --noconfirm
+          --windowed
+          --onedir
+          --name Audly
+          --icon=matcha.icns
+          --collect-all yt_dlp
+          --collect-all certifi
+          --collect-all imageio_ffmpeg
+          audly.py
 
       - name: Build Windows executable
         if: runner.os == 'Windows'
-        run: pyinstaller --windowed --onefile --icon=matcha.ico audly.py
+        run: >
+          pyinstaller
+          --clean
+          --noconfirm
+          --windowed
+          --onedir
+          --name Audly
+          --icon=matcha.ico
+          --collect-all yt_dlp
+          --collect-all certifi
+          --collect-all imageio_ffmpeg
+          audly.py
 
       - name: Package macOS release
         if: runner.os == 'macOS'
-        run: cd dist && zip -r ../Audly-macOS.zip audly.app
+        run: ditto -c -k --sequesterRsrc --keepParent dist/Audly.app Audly-macOS.zip
 
       - name: Package Windows release
         if: runner.os == 'Windows'
         shell: pwsh
-        run: Compress-Archive -Path dist/audly.exe -DestinationPath Audly-Windows.zip -Force
+        run: Compress-Archive -Path dist\Audly\* -DestinationPath Audly-Windows.zip -Force
 
       - name: Upload macOS app artifact
         if: runner.os == 'macOS'

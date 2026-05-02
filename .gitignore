@@ -2,5 +2,8 @@
 __pycache__/
 build/
 dist/
+release/
 .DS_Store
 *.pyc
+*.zip
+*.spec
