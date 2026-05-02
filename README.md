@@ -8,9 +8,14 @@ Audly wraps common `yt-dlp` workflows in a clean PySide6 interface for users who
 
 ## Download
 
-Download the latest public build from the Audly Releases page:
+Download the latest public build directly:
 
-[Download Audly from GitHub Releases](https://github.com/taylorph/audly/releases/latest)
+- [Download Audly for macOS](https://github.com/taylorph/audly/releases/latest/download/Audly-macOS.zip)
+- [Download Audly for Windows](https://github.com/taylorph/audly/releases/latest/download/Audly-Windows.zip)
+
+Current release: [Audly v1.1.4](https://github.com/taylorph/audly/releases/tag/v1.1.4)
+
+All releases are available on the [Audly Releases page](https://github.com/taylorph/audly/releases).
 
 Choose the file for your operating system:
 
@@ -117,11 +122,11 @@ Releases are published through GitHub Releases:
 
 [https://github.com/taylorph/audly/releases](https://github.com/taylorph/audly/releases)
 
-To publish a new release, create and push a version tag:
+To publish a new release, create and push the next version tag. For example:
 
 ```bash
-git tag v1.0.0
-git push origin v1.0.0
+git tag v1.1.5
+git push origin v1.1.5
 ```
 
 GitHub Actions will build both platforms and attach these files to the release:

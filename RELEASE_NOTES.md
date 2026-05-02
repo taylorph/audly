@@ -1,4 +1,4 @@
-# Audly v1.0
+# Audly v1.1.4
 
 - macOS .app build
 - Windows .exe build
