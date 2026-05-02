@@ -14,7 +14,7 @@ Download the latest public build from the Audly Releases page:
 
 Choose the file for your operating system:
 
-- macOS: download `Audly-macOS.zip`, unzip it, then open `audly.app`.
+- macOS: download `Audly-macOS.zip`, unzip it, then open `Audly.app`.
 - Windows: download `Audly-Windows.zip`, unzip it, then run `Audly.exe`.
 
 On macOS, Audly is currently unsigned. If macOS blocks the app on first launch, right click the app and choose Open.
@@ -95,7 +95,7 @@ python audly.py
 ### macOS
 
 ```bash
-pyinstaller --windowed --icon=matcha.icns audly.py
+pyinstaller --clean --noconfirm --windowed --onedir --name Audly --icon=matcha.icns --collect-all yt_dlp --collect-all certifi --collect-all imageio_ffmpeg audly.py
 ```
 
 ### Windows
@@ -134,7 +134,7 @@ GitHub Actions will build both platforms and attach these files to the release:
 For manual packaging, create release archives from the PyInstaller output:
 
 ```bash
-zip -r Audly-macOS.zip dist/audly.app
+ditto -c -k --sequesterRsrc --keepParent dist/Audly.app Audly-macOS.zip
 Compress-Archive -Path dist\Audly\* -DestinationPath Audly-Windows.zip -Force
 ```
 

@@ -44,7 +44,18 @@ jobs:
 
       - name: Build macOS app
         if: runner.os == 'macOS'
-        run: pyinstaller --windowed --icon=matcha.icns audly.py
+        run: >
+          pyinstaller
+          --clean
+          --noconfirm
+          --windowed
+          --onedir
+          --name Audly
+          --icon=matcha.icns
+          --collect-all yt_dlp
+          --collect-all certifi
+          --collect-all imageio_ffmpeg
+          audly.py
 
       - name: Build Windows executable
         if: runner.os == 'Windows'
@@ -63,7 +74,7 @@ jobs:
 
       - name: Package macOS release
         if: runner.os == 'macOS'
-        run: cd dist && zip -r ../Audly-macOS.zip audly.app
+        run: ditto -c -k --sequesterRsrc --keepParent dist/Audly.app Audly-macOS.zip
 
       - name: Package Windows release
         if: runner.os == 'Windows'
