@@ -80,6 +80,7 @@ The result is a desktop wrapper around yt-dlp where users interact with buttons 
 
 - Python 3.10+
 - Python dependencies from `requirements.txt`
+- Release/build dependencies from `requirements-dev.txt`
 
 Audly includes an `imageio-ffmpeg` fallback for packaged builds, and can also use a bundled `ffmpeg.exe` or system FFmpeg when available.
 
@@ -92,25 +93,22 @@ python audly.py
 
 ## Build Instructions
 
-### macOS
+Install the release tooling once:
 
 ```bash
-pyinstaller --clean --noconfirm --windowed --onedir --name Audly --icon=matcha.icns --collect-all yt_dlp --collect-all certifi --collect-all imageio_ffmpeg audly.py
+python -m pip install -r requirements-dev.txt
 ```
 
-### Windows
-
-Generate `matcha.ico` from `matchaicon.png` before building:
+Build the app for the current operating system:
 
 ```bash
-python -m pip install pillow
-python -c "from PIL import Image; img = Image.open('matchaicon.png'); img.save('matcha.ico', sizes=[(16,16),(32,32),(48,48),(64,64),(128,128),(256,256)])"
+python scripts/build_release.py
 ```
 
-Then build the folder-based Windows app:
+Build and package a release zip:
 
 ```bash
-pyinstaller --clean --noconfirm --windowed --onedir --name Audly --icon=matcha.ico --collect-all yt_dlp --collect-all certifi --collect-all imageio_ffmpeg audly.py
+python scripts/build_release.py --package
 ```
 
 ## Release Instructions
@@ -134,8 +132,7 @@ GitHub Actions will build both platforms and attach these files to the release:
 For manual packaging, create release archives from the PyInstaller output:
 
 ```bash
-ditto -c -k --sequesterRsrc --keepParent dist/Audly.app Audly-macOS.zip
-Compress-Archive -Path dist\Audly\* -DestinationPath Audly-Windows.zip -Force
+python scripts/build_release.py --package
 ```
 
 ## Automated Builds

@@ -7,3 +7,4 @@ release/
 *.pyc
 *.zip
 *.spec
+matcha.ico
